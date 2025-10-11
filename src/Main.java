@@ -9,6 +9,7 @@
 
 import java.beans.Transient;
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 
 interface  options{
@@ -49,13 +50,13 @@ public class Main {
 
              int answer= 0;
              try {
-                 answer = scanner.nextInt();
+                 answer = Integer.parseInt(scanner.nextLine());
                  if(answer>4||answer<1)
                  {
                      System.out.println("options range from 1 to 4 ,try again");
                      continue;
                  }
-             } catch (InputMismatchException e) {
+             } catch (NumberFormatException e) {
                  System.out.println("invalid input ,please enter a valid number.");
                 scanner.nextLine();
                 continue;
@@ -113,8 +114,8 @@ public class Main {
 
                  int answer= 0;
                  try {
-                     answer = scanner.nextInt();
-                 } catch (InputMismatchException e) {
+                     answer = Integer.parseInt(scanner.nextLine());
+                 } catch (NumberFormatException e) {
                      System.out.println("incorrect input,enter valid number and try again.");
                      scanner.nextLine();
                      continue;
@@ -169,8 +170,9 @@ public class Main {
                         """);
                 int answer= 0;
                 try {
-                    answer = scanner.nextInt();
-                } catch (InputMismatchException e) {
+                    answer = Integer.parseInt(scanner.nextLine());
+
+                } catch (NumberFormatException e) {
                    System.out.println("incorrect input,enter valid number and try again.");
                     scanner.nextLine();
                    continue;
@@ -241,8 +243,8 @@ class StudentOptions implements options{
 
                  int answer= 0;
                  try {
-                     answer = scanner.nextInt();
-                 } catch (InputMismatchException e) {
+                     answer = Integer.parseInt(scanner.nextLine());
+                 } catch (NumberFormatException  e) {
                      System.out.println("incorrect input,enter valid number and try again.");
                      scanner.nextLine();
                      continue;
@@ -263,6 +265,7 @@ class StudentOptions implements options{
                         break;
                    case 3:
                        student.enroll(options.retCode("Enter the course code you wish to enroll in: "));
+
                        break;
                    case 4:
                        student.seeAllGrades();
@@ -280,13 +283,14 @@ class StudentOptions implements options{
                        student.updateProfile();
                        break;
                    case 9:
-                       student.dis_enroll(options.retCode("Enter the course code you wish to withdraw : "));
+                       student.un_enroll(options.retCode("Enter the course code you wish to withdraw : "));
                        break;
                    case 10:
                           flag=false;
                }
            }
             student.exportChanges();
+
        }
 }
 
@@ -295,38 +299,39 @@ class Student implements  Serializable{
       private transient final Scanner scanner=new Scanner(System.in);
     private String name;
     private  String id;
-    private final ArrayList<Course> courses;
-    private final HashMap<Course,Grade> gradesForCoursesMap;
-
+    private  ArrayList<Course> courses;
+    private  HashMap<Course,Grade> gradesForCoursesMap;
 
     public Student(String name,String id){
         this.name=name; this.id=id;
-        try {
-            File file1=new File("src/enrolledCo.ser");
-            File file2=new File("src/grades.ser");
-            if(!file1.exists()||file1.length()==0){
-                courses=new ArrayList<>();
-            }else{
+         importChanges();
+    }
+public void importChanges(){
+    try {
+        File file1=new File("src/enrolledCo.ser");
+        File file2=new File("src/grades.ser");
+        if(!file1.exists()||file1.length()==0){
+            courses=new ArrayList<>();
+        }else{
             ObjectInputStream enrolledCourses=new ObjectInputStream(new FileInputStream(file1));
             courses=(ArrayList<Course>) enrolledCourses.readObject();
             enrolledCourses.close();
-            }
-            if(!file2.exists()||file2.length()==0){
-                gradesForCoursesMap=new HashMap<>();
-            }else{
+        }
+        if(!file2.exists()||file2.length()==0){
+            gradesForCoursesMap=new HashMap<>();
+        }else{
             ObjectInputStream grades=new ObjectInputStream(new FileInputStream(file2));
             gradesForCoursesMap=(HashMap<Course, Grade>) grades.readObject();
             grades.close();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+    }
     }
 
-    //everytime after using student class we export changes to file
-  public void  exportChanges(){
+    public void  exportChanges(){
       try {
           ObjectOutputStream coursesToFile=new ObjectOutputStream(new FileOutputStream("src/enrolledCo.ser"));
           coursesToFile.close();
@@ -338,14 +343,12 @@ class Student implements  Serializable{
 
 
   }
-
-
-
-    public ArrayList<Course> getCourses() {
+     public ArrayList<Course> getCourses() {
+        importChanges();
         return courses;
     }
 
-    static class Grade{
+    static class Grade implements Serializable{
        private final double score;
        private  final   String grade;
         public Grade(double score){
@@ -381,6 +384,7 @@ class Student implements  Serializable{
     }
 
     public HashMap<Course, Grade> getGradesForCoursesMap() {
+        importChanges();
         return gradesForCoursesMap;
     }
     public void viewAvailableCourses(){
@@ -396,10 +400,13 @@ class Student implements  Serializable{
              return;
          }
         course.students.add(this);
+         course.exportChanges();
         courses.add(course);
+        exportChanges();
         System.out.println("you have successfully enrolled to "+course.getName()+"-"+course.getCode());
     }
     public void listEnrolledCourses(){
+        importChanges();
         if(courses.isEmpty()){
             System.out.println("none");
             return;
@@ -411,6 +418,7 @@ class Student implements  Serializable{
         }
     }
     public  Course searchCourseByCode(String code){
+        importChanges();
         Course course=null;
 
         for(Course c:courses){
@@ -422,6 +430,7 @@ class Student implements  Serializable{
     }
 
     public void seeAllGrades(){
+        importChanges();
         if(courses.isEmpty()){
             System.out.println("you haven't enrolled to any course.");
             return;
@@ -436,6 +445,7 @@ class Student implements  Serializable{
         }
     }
     public void seeGrade(String code){
+        importChanges();
         Course course=searchCourseByCode(code);
         if(course==null){
             System.out.println("you are not enrolled to this course");
@@ -448,6 +458,7 @@ class Student implements  Serializable{
 
     }
     public void seeReportCard(){
+        importChanges();
         if(courses.isEmpty()){
             System.out.println("you haven't enrolled to any course yet.");
             return;
@@ -457,10 +468,11 @@ class Student implements  Serializable{
               return;
           }
           seeAllGrades();
-          System.out.printf("GPA=%.2f",calGpa());
+          System.out.printf("GPA=%.2f\n",calGpa());
 
     }
     public double calGpa(){
+        importChanges();
         double total=0.0;
         double totalChr=0;
         for(Course course:courses){
@@ -492,17 +504,19 @@ class Student implements  Serializable{
         setName(scanner.nextLine());
         System.out.print("enter id: ");
         setId(scanner.nextLine());
-        System.out.println("you have successfully updated your profile ");
+        System.out.println("you have successfully updated your profile to:\n ");
+        seeProfile();
     }
-    public void dis_enroll(String code){
+    public void un_enroll(String code){
 
         Course course= searchCourseByCode(code);
         if(course==null){
             System.out.println("you weren't attending the course.");
             return;
         }
-
+        System.out.println("you have successfully  un enrolled from "+course.getName()+"-("+course.getCode()+")");
         courses.remove(course);
+        exportChanges();
     }
 }
 
@@ -516,23 +530,25 @@ class Course implements Serializable{
 
     public Course(String c_name,String c_code,int creditHr){
         this.c_name=c_name; this.c_code=c_code;this.creditHr=creditHr;
+        importChanges();
+    }
+    public void importChanges(){
         try {
             File file1=new File("src/co_stu_list.ser");
             if(!file1.exists()||file1.length()==0){
                 students=new ArrayList<>();
             }else{
-            ObjectInputStream  studentsEnrolledInCourse=new ObjectInputStream(new FileInputStream("co_stu_list.ser"));
-            students=(ArrayList<Student>) studentsEnrolledInCourse.readObject();
-            studentsEnrolledInCourse.close();
+                ObjectInputStream  studentsEnrolledInCourse=new ObjectInputStream(new FileInputStream("src/co_stu_list.ser"));
+                students=(ArrayList<Student>) studentsEnrolledInCourse.readObject();
+                studentsEnrolledInCourse.close();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
-    //everytime after using student class export changes
+
     public void exportChanges(){
         try {
             ObjectOutputStream listToFile=new ObjectOutputStream(new FileOutputStream("src/co_stu_list.ser"));
@@ -548,6 +564,7 @@ class Course implements Serializable{
     }
 
     public Student searchById(String id){
+        importChanges();
         Student student=null;
         for(Student s:students){
             if(s.getId().equals(id)){
@@ -558,7 +575,7 @@ class Course implements Serializable{
 
     }
 
-    class Instructor {
+    class Instructor implements Serializable {
         private final  String i_Name;
         private final String i_id;
 
@@ -576,15 +593,19 @@ class Course implements Serializable{
         }
 
         public void gradeStudent(String id){
+
             Student student=searchById(id);
             if(student==null){
                 System.out.println("student not found.");
                 return;
             }
-            System.out.println(student.getName()+"("+student.getId()+")");
+            System.out.println(student.getName()+"(ID-"+student.getId()+")");
             System.out.print("enter score for "+c_name+"("+c_code+")");
-            double score=scanner.nextDouble();
+
+            double score=Double.parseDouble(scanner.nextLine());
             student.getGradesForCoursesMap().put(Course.this, new Student.Grade(score));
+            exportChanges();
+
 
         }
 
@@ -596,22 +617,25 @@ class Course implements Serializable{
             }
             student.seeProfile();
         }
-        //remove student from course
+
         public void removeStu(String id){
             Student student=searchById(id);
             if(student==null){
                 System.out.println("student not found.");
                 return;
             }
+            System.out.println("student "+student.getName()+" ID-"+student.getId()+"is successfully removed from list.");
             students.remove(student);
+            exportChanges();
         }
     }
         public void ListStudents(){
+        importChanges();
           if(this.students.isEmpty()){
             return;
         }
         for(Student student: this.students){
-            System.out.println(student.getName()+"  "+ student.getId());
+            System.out.println(student.getName()+"  ID- "+ student.getId());
         }
     }
     public Instructor getInstructor() {
@@ -630,32 +654,34 @@ class Course implements Serializable{
 
 class Manager implements Serializable{
 
-    private  final  ArrayList<Course> coursesAvailable;
+    private    ArrayList<Course> coursesAvailable;
     private ObjectOutputStream studentsToFile;
 
-    private final ArrayList<Student> students;
+    private  ArrayList<Student> students;
     private ObjectOutputStream coursesToFile;
     private transient final Scanner scanner=new Scanner(System.in);
 
-
     public Manager(){
+        importChanges();
+    }
+    public void importChanges() {
         try {
-            File file1=new File("src/students.ser");
-            File file2=new File("src/courses.ser");
-            if(!file1.exists()||file1.length()==0){
-                students=new ArrayList<>();
+            File file1 = new File("src/students.ser");
+            File file2 = new File("src/courses.ser");
+            if (!file1.exists() || file1.length() == 0) {
+                students = new ArrayList<>();
 
-            }else {
+            } else {
                 ObjectInputStream studentsFromFile = new ObjectInputStream(new FileInputStream(file1));
                 students = (ArrayList<Student>) studentsFromFile.readObject();
                 studentsFromFile.close();
             }
-            if(!file2.exists()||file2.length()==0){
-                coursesAvailable=new ArrayList<>();
-            }else{
-            ObjectInputStream coursesFromFile = new ObjectInputStream(new FileInputStream(file2));
-            coursesAvailable=(ArrayList<Course>) coursesFromFile.readObject();
-            coursesFromFile.close();
+            if (!file2.exists() || file2.length() == 0) {
+                coursesAvailable = new ArrayList<>();
+            } else {
+                ObjectInputStream coursesFromFile = new ObjectInputStream(new FileInputStream(file2));
+                coursesAvailable = (ArrayList<Course>) coursesFromFile.readObject();
+                coursesFromFile.close();
             }
 
 
@@ -664,6 +690,7 @@ class Manager implements Serializable{
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
 
 
     }
@@ -685,33 +712,36 @@ class Manager implements Serializable{
     }
 
     public void addStudent(){
-        System.out.println("Enter name of student: ");
+        System.out.println("Enter name of student you wish to register: ");
         String name=scanner.nextLine();
-        System.out.println("Enter id of student: ");
+        System.out.println("Enter id of student you wish to register : ");
         String ID=scanner.nextLine();
         students.add(new Student(name,ID));
+        exportChangesToFile();
 
     }
 
 
 
     public void addCourse(){
-        System.out.print("enter the name of the course: ");
+        importChanges();
+        System.out.print("enter the name of the course you wish to add: ");
         String name=scanner.nextLine();
-        System.out.print("enter the code for the course : ");
+        System.out.print("enter the code for the course you wish to add : ");
         String code=scanner.nextLine();
-        System.out.print("Enter the credit hour in number: ");
-        int cr= scanner.nextInt();
-        scanner.nextLine();
+        System.out.print("Enter the credit hour in number for the course you wish to addd: ");
+        int cr=Integer.parseInt(scanner.nextLine());
         Course course=new Course(name,code,cr);
         if(coursesAvailable.contains(course)){
             System.out.println("course already present.");
             return;
         }
         coursesAvailable.add(course);
-        System.out.println(course.getName()+" ("+course.getCode()+") is successfully added to available courses.");
+        System.out.println(course.getName()+" -("+course.getCode()+") is successfully added to available courses.");
+        exportChangesToFile();
     }
     public void deleteCourse(String code){
+        importChanges();
         if(coursesAvailable.isEmpty()){
             System.out.println("no courses are added yet.");
             return;
@@ -723,19 +753,22 @@ class Manager implements Serializable{
         }
         coursesAvailable.remove(course);
         System.out.println(course.getName()+"("+course.getCode()+") is successfully removed.");
+        exportChangesToFile();
     }
     public void viewCourses(){
+        importChanges();
         if(coursesAvailable.isEmpty()){
             System.out.println("no courses available right now.");
             return;
         }
         for(Course course:coursesAvailable){
             System.out.print(course.getName()+"("+course.getCode()+")...."+course.getCreditHr()+
-         "  \n");
+         " HR\n");
         }
         System.out.println();
     }
     public  Course searchCourseByCode(String code){
+        importChanges();
         if(coursesAvailable.isEmpty()){
             return null;
         }
@@ -753,6 +786,7 @@ class Manager implements Serializable{
 
 
    public  Student searchStuById(String id){
+        importChanges();
        if(students.isEmpty()){
            System.out.println("Students are not registered yet.");
            return null;
@@ -779,6 +813,7 @@ class Manager implements Serializable{
         String id=scanner.nextLine();
         course.setInstructor(course.new Instructor(name,id));
         System.out.println("Ir."+name+" is assigned to the course "+course.getName()+" ("+course.getCode()+")");
+        exportChangesToFile();
 
     }
     public void seeStuProfile(String id){
@@ -800,6 +835,7 @@ class Manager implements Serializable{
               else{
                   System.out.println("either course or student doesn't exist.");
               }
+              exportChangesToFile();
     }
 
 }
