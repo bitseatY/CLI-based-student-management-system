@@ -20,6 +20,44 @@ public class CourseDao {
             ps.executeUpdate();
         }
     }
+    public Course getCourseByCode(String code) throws SQLException{
+        String query="select * from course where code=?";
+        try(PreparedStatement ps= connection.prepareStatement(query)) {
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return new Course(rs.getString("title"), rs.getString("code"), rs.getInt("credit_hr"));
+            else
+                return null;
+        }
+    }
+    public Course getCourseById(int id) throws SQLException{
+        String query="select * from course where id=?";
+        try(PreparedStatement ps= connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return new Course(rs.getString("title"), rs.getString("code"), rs.getInt("credit_hr"));
+            else
+                return null;
+        }
+    }
+
+
+
+
+    public  int getCourseId(String code) throws SQLException{
+        String query="select id from course where code=?";
+        try(PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setString(1, code);
+            ResultSet rs=ps.executeQuery();
+            if(rs.next())
+                return rs.getInt("id");
+            return 0;
+        }
+
+
+    }
 
     public List<Course> getCourses() throws SQLException{
         List<Course> courses=new ArrayList<>();
@@ -32,6 +70,22 @@ public class CourseDao {
             return  courses;
         }
     }
+    public void viewCourses() throws SQLException{
+        String query="select * from course ";
+        try(PreparedStatement ps= connection.prepareStatement(query)){
+            ResultSet rs=ps.executeQuery();
+             if(!rs.next()) {
+                 System.out.println("no courses available right now.");
+                 return;
+             }
+             while(rs.next())
+                 System.out.print(rs.getString("title")+"("+rs.getString("code")+")...."+
+                         rs.getInt("credit_hr")+
+                         " HR\n");
+             System.out.println();
+        }
+    }
+
 
     public  void  remove(Course course) throws SQLException{
         String query="delete from course where code=?";
@@ -40,19 +94,15 @@ public class CourseDao {
             ps.executeUpdate();
         }
     }
-   public void  assignInstructor(Course course,Instructor instructor) throws SQLException{
-       String query="update course set ins_id=? where code=? ";
-       try (PreparedStatement ps= connection.prepareStatement(query)){
+   public void  assignInstructor(Course course,Instructor instructor) throws SQLException {
+       String query = "update course set ins_id=? where code=? ";
+       try (PreparedStatement ps = connection.prepareStatement(query)) {
            ps.setString(1, instructor.getId());
            ps.setString(2, course.getCode());
            ps.executeUpdate();
        }
-
-
-
-
-
    }
+
 
 
 

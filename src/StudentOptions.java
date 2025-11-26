@@ -1,8 +1,24 @@
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Scanner;
+
 public class StudentOptions {
-    public void menu(){
-        Manager manager=new Manager();
+    private final Connection connection;
+    private final   StudentDao studentDao;
+    private final  MarklistDao marklistDao;
+    private  final  CourseDao courseDao;
+
+    private final Scanner scanner=new Scanner(System.in);
+    public  StudentOptions(Connection connection){
+        this.connection=connection;
+        studentDao=new StudentDao(connection);
+        marklistDao=new MarklistDao(connection);
+        courseDao =new CourseDao(connection);
+    }
+    public void menu() throws SQLException {
         boolean flag=true;
-        Student student=manager.searchStuById(options.retId("Enter your ID: "));
+        Student student=studentDao.getStudent(Options.retId("Enter your ID: "));
         if(student==null){
             System.out.println("ID not found try again.");
             return;
@@ -38,41 +54,113 @@ public class StudentOptions {
             }
             switch (answer) {
                 case 1:
-                    student.viewAvailableCourses();
+                    viewAvailableCourses();
                     break;
                 case 2:
-                    student.listEnrolledCourses();
+                    listEnrolledCourses(student.getId());
                     break;
                 case 3:
-                    student.enroll(options.retCode("Enter the course code you wish to enroll in: "));
-
+                    enroll(student,Options.retCode("Enter the course code you wish to enroll in: "));
                     break;
                 case 4:
-                    student.seeAllGrades();
-                    break;
-                case 5:
-                    student.seeGrade(options.retCode("Enter the course code you wish to see grades : "));
+                    seeAllGrades(student.getId());
                     break;
                 case 6:
-                    student.seeReportCard();
+                    seeReportCard(student.getId());
                     break;
                 case 7:
-                    student.seeProfile();
+                   seeProfile(student.getId());
                     break;
                 case 8:
-                    student.updateProfile();
+                   updateProfile(student.getId());
                     break;
                 case 9:
-                    student.un_enroll(options.retCode("Enter the course code you wish to withdraw : "));
+                    un_enroll(student.getId(),Options.retCode("Enter the course code you wish to withdraw : "));
                     break;
                 case 10:
                     flag=false;
             }
         }
-        student.exportChanges();
+
+    }
+    public void viewAvailableCourses() throws SQLException {
+           courseDao.viewCourses();
+    }
+    public void  listEnrolledCourses(String id) throws SQLException{
+            marklistDao.showStudentEnrolledCourses(id);
+    }
+    public void enroll(Student student,String code) throws SQLException{
+        Course course= courseDao.getCourseByCode(code);
+        if(course==null){
+            System.out.println("course not found.");
+            return;
+        }
+        marklistDao.enrollStudentToCourse(student.getId(),code);
+        System.out.println("you have successfully enrolled to "+course.getName()+"-"+course.getCode());
+    }
+    public  void  seeAllGrades(String st_id) throws SQLException{
+          marklistDao.seeAllGrades(st_id);
+    }
+    public void seeReportCard(String st_id) throws  SQLException{
+        if(courseDao.getCourses().isEmpty()){
+            System.out.println("you haven't enrolled to any course yet.");
+            return;
+        }
+        seeAllGrades(st_id);
+        System.out.printf("GPA=%.2f\n",calGpa(st_id));
+
+    }
+
+    public double calGpa(String st_id) throws SQLException{
+        Map<Course,String> gradePerCourse=marklistDao.getGradePerCourse(st_id);
+        double total=0.0;
+        double totalChr=0;
+        for(Course course:gradePerCourse.keySet()){
+            switch (gradePerCourse.get(course)){
+                case "A+":
+                case "A":
+                    total+=4.0*course.getCreditHr();
+                    break;
+                case  "B+" :
+                case "B":
+                    total+=3.0*course.getCreditHr();
+                    break;
+                case "C":
+                    total+=2.0*course.getCreditHr();
+                    break;
+                case "D":
+                    total+=1.0*course.getCreditHr();
+                    break;
+            }
+            totalChr+=course.getCreditHr();
+        }
+        return total/totalChr;
+    }
+    public void seeProfile(String st_id) throws SQLException{
+        Student student=studentDao.getStudent(st_id);
+        if(student==null)
+            return;
+        System.out.println("******Student profile************");
+        System.out.printf("Name- %S%nID- %s%nlist of enrolled courses:%n",student.getName(),student.getId());
+        listEnrolledCourses(st_id);
+    }
+    public void updateProfile(String st_id) throws SQLException{
+        Student student=studentDao.getStudent(st_id);
+        if(student==null)
+            return;
+        System.out.print("enter full name: ");
+        String newName=scanner.nextLine();
+        studentDao.updateStudentProfile(st_id,newName);
+
+        System.out.println("you have successfully updated your profile to:\n ");
+        seeProfile(st_id);
+    }
+    public void un_enroll(String st_id,String code) throws SQLException{
+        marklistDao.removeStudentFromCourse(st_id,code);
 
     }
 
 
 
-        }
+
+}

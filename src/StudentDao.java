@@ -29,6 +29,39 @@ public class StudentDao {
         return  students;
     }
 
+    public Student getStudent(String id) throws SQLException{
+        List<Student> students=getStudents();
+        Student student=null;
+        for(Student s:students) {
+            if (s.getId().equals(id)) {
+                student=s;
+                break;
+            }
+
+        }
+        return  student;
+    }
+    public  int getStudentId(String id) throws SQLException{
+       String query="select id from student  where s_id=?";
+       try(PreparedStatement ps= connection.prepareStatement(query)){
+           ps.setString(1, id);
+           ResultSet rs=ps.executeQuery();
+           if(rs.next())
+               return rs.getInt("id");
+           return 0;
+       }
+    }
+    public  void updateStudentProfile(String st_id,String name) throws SQLException{
+        String query="update student set name=?  where id=? ";
+        try(PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setString(1, name);
+            ps.setString(2, st_id);
+           ps.executeUpdate();
+
+        }
+    }
+
+
 
 
 
