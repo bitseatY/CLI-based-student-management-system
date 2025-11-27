@@ -47,6 +47,19 @@ public class InstructorDao {
         }
 
     }
+    public  Instructor getInsById(String i_id) throws SQLException {
+        String query="select * from instructor where i_id=?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setString(1,i_id);
+            ResultSet rs=ps.executeQuery();
+            if (rs.next())
+                return  new Instructor(rs.getString("name"),rs.getString("i_id"));
+            return null;
+        }
+
+    }
+
+
 
 
 }

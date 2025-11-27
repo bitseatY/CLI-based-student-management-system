@@ -14,8 +14,6 @@ public interface Options {
         System.out.print(message);
         return scanner.nextLine();
     }
-
-
     void menu();
 
 

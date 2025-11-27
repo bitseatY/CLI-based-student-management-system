@@ -51,6 +51,22 @@ public class StudentDao {
            return 0;
        }
     }
+    public  Student getStudentById(int id) throws SQLException{
+        String query="select * from student  where id=?";
+        try(PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setInt(1, id);
+            ResultSet rs=ps.executeQuery();
+            if(rs.next())
+                return  new Student(rs.getString("name"),rs.getString("s_id"));
+            return null;
+        }
+    }
+
+
+
+
+
+
     public  void updateStudentProfile(String st_id,String name) throws SQLException{
         String query="update student set name=?  where id=? ";
         try(PreparedStatement ps= connection.prepareStatement(query)){

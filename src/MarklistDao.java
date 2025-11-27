@@ -48,6 +48,49 @@ public class MarklistDao {
                         course.getName(), course.getCode(), course.getCreditHr());
             }
     }
+
+    public List<Student> getCourseEnrolledStudents(String code) throws SQLException {
+        List<Student> students =new ArrayList<>();
+        String query="select s_id from marklist where c_id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)) {
+            int c_id = new CourseDao(connection).getCourseId(code);
+            ps.setInt(1, c_id);
+            if (c_id == 0)
+                System.out.println("course not found,");
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                System.out.println("students not found,");
+            }
+            CourseDao courseDao=new CourseDao(connection);
+            while (rs.next()) {
+                Student student=new StudentDao(connection).getStudentById(rs.getInt("s_id"));
+                students.add(student);
+            }
+            return  students;
+        }
+    }
+    public void gradeStudent(String s_id,String code,double  mark) throws SQLException {
+        String query="insert into  marklist values(?,?,?) ";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            int st_id=new StudentDao(connection).getStudentId(s_id);
+            int co_id=new CourseDao(connection).getCourseId(code);
+            ps.setInt(1,co_id);
+            ps.setInt(2,st_id);
+            ps.setDouble(3,mark);
+
+            if(st_id!=0&&co_id!=0&&mark>0)
+                ps.executeUpdate();
+        }
+
+    }
+
+
+
+
+
+
+
+
     public List<Course> getStudentEnrolledCourses(String id) throws SQLException {
         List<Course> courses =new ArrayList<>();
         String query="select c_id  from marklist where s_id=?";

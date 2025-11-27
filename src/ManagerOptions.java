@@ -3,18 +3,31 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
-public class ManagerOptions {
+public class ManagerOptions{
     private Connection connection;
     private  StudentDao studentDao;
     private CourseDao courseDao;
     private MarklistDao marklistDao;
     private  InstructorDao instructorDao;
     private transient final Scanner scanner=new Scanner(System.in);
+    public ManagerOptions(Connection connection){
+        this.connection=connection;
+        studentDao=new StudentDao(connection);
+        marklistDao=new MarklistDao(connection);
+        courseDao =new CourseDao(connection);
+        instructorDao=new InstructorDao(connection);
+
+    }
 
 
-    public void menu(){
+    public void menu() throws SQLException{
+        ManagerDao managerDao=new ManagerDao(connection);
+        String id=Options.retId("Enter your id : ");
+        Manager manager=managerDao.getManagerById(id);
+        if (manager==null)
+            return;
 
-        Manager manager=new Manager();
+
         boolean flag=true;
         while (flag){
             System.out.println("""
@@ -48,17 +61,17 @@ public class ManagerOptions {
                     addCourse();
                     break;
                 case 2:
-                    removeCourse(options.retCode("Enter the course code you wish to delete: "));
+                    removeCourse(Options.retCode("Enter the course code you wish to delete: "));
                     break;
                 case 3:
-                    manager.viewCourses();
+                    viewCourses();
                     break;
                 case 4:
 
-                   seeStuProfile(options.retId("Enter the student id you wish to see:  "));
+                   seeStuProfile(Options.retId("Enter the student id you wish to see:  "));
                     break;
                 case 5:
-                   removeStudent(options.retId("Enter the student id: "),options.retCode("Enter the course code: "));
+                   removeStudent(Options.retId("Enter the student id: "),Options.retCode("Enter the course code: "));
                     break;
 
                 case 6:
@@ -66,13 +79,13 @@ public class ManagerOptions {
                     break;
 
                 case 7:
-                    manager.assignInstructor(options.retCode("Enter the course code: "));
+                    assignInstructor(Options.retCode("Enter the course code: "));
                     break;
                 case 8:
                     flag=false;
             }
         }
-        manager.exportChangesToFile();
+
     }
     public void addCourse() throws SQLException {
 
@@ -137,7 +150,8 @@ public class ManagerOptions {
             System.out.println("student not found.");
             return;
         }
-        student.seeProfile();
+        StudentOptions options=new StudentOptions(connection);
+        options.seeProfile(student.getId());
     }
     public void removeStudent(String id,String code) throws SQLException{
         Course course=courseDao.getCourseByCode(code);
@@ -157,7 +171,11 @@ public class ManagerOptions {
         String ID=scanner.nextLine();
         studentDao.addStudent(ID,name);
     }
+   public  void viewCourses() throws  SQLException{
+        courseDao.viewCourses();
 
+
+   }
 
 
 }

@@ -7,18 +7,17 @@
 //Use exit option when you're done to save changes to files.
 
 
-import java.beans.Transient;
-import java.io.*;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.*;
-
+import java.util.Scanner;
 
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-/**
+         Connection connection=new DBConnection("jdbc:mysql://localhost:3306/portal","root","b:tse@t1996").getConnection();
+
+
         Scanner scanner = new Scanner(System.in);
 
         boolean flag = true;
@@ -48,26 +47,23 @@ public class Main {
 
             switch (answer) {
                 case 1:
-                    options options1 = new StudentOptions();
-                    options1.menu();
+                    StudentOptions studentOptions = new StudentOptions(connection);
+                    studentOptions.menu();
                     break;
                 case 2:
-                    options options2 = new InstructorOptions();
-                    options2.menu();
+                    InstructorOptions instructorOptions = new InstructorOptions(connection);
+                    instructorOptions.menu();
                     break;
                 case 3:
-                    options options3 = new ManagerOptions();
-                    options3.menu();
+                 ManagerOptions managerOptions = new ManagerOptions(connection);
+                   managerOptions.menu();
                     break;
                 case 4:
                     flag = false;
             }
 
-        }*/
+        }
 
-        Connection connection=new DBConnection("jdbc:mysql://localhost:3306/portal","root","b:tse@t1996").getConnection();
-        StudentDao dao=new StudentDao(connection);
-        dao.addStudent("1","lala");
     }
 
 }

@@ -39,7 +39,7 @@ public class StudentOptions {
                        
                        """);
 
-            int answer= 0;
+            int answer;
             try {
                 answer = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException  e) {

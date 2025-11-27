@@ -1,20 +1,37 @@
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class InstructorOptions {
-    private Scanner scanner=new Scanner(System.in);
+    private final Connection connection;
+    private final   StudentDao studentDao;
+    private final  MarklistDao marklistDao;
+    private  final  InstructorDao instructorDao;
+    private  final  CourseDao courseDao;
+
+    private final Scanner scanner=new Scanner(System.in);
+    public  InstructorOptions(Connection connection){
+        this.connection=connection;
+        studentDao=new StudentDao(connection);
+        marklistDao=new MarklistDao(connection);
+        courseDao =new CourseDao(connection);
+        instructorDao=new InstructorDao(connection);
+    }
 
 
-    public void menu() {
-        Manager manager=new Manager();
-        Course course= manager.searchCourseByCode(options.retCode("Enter code for the course you are teaching: "));
+    public void menu()  throws SQLException {
+
+        Course course= courseDao.getCourseByCode(Options.retCode("Enter code for the course you are teaching: "));
         if(course==null){
             System.out.println("course not found.");
             return;
         }
-        String id=options.retId("Enter your id : ");
-        Course.Instructor instructor=course.getInstructor();
-        if(!instructor.getId().equals(id)){
-            System.out.println("you haven't been assigned to the course.");
+        String id=Options.retId("Enter your id : ");
+
+        Instructor instructor=instructorDao.getInsById(id);
+        if(instructor==null){
+            System.out.println("not found");
             return;
         }
         boolean flag=true;
@@ -26,8 +43,8 @@ public class InstructorOptions {
                      3.grade a student
                      4.remove a student from the course
                      5.exit
-                  """);
-                 int answer= 0;
+   """);
+                 int answer;
                  try {
                      answer = Integer.parseInt(scanner.nextLine());
                  } catch (NumberFormatException e) {
@@ -42,23 +59,60 @@ public class InstructorOptions {
                  }
             switch (answer){
                 case 1:
-                    course.ListStudents();
+                    String code=Options.retCode("enter the code for the course: ");
+                    listEnrolledStudents(code);
                     break;
                 case 2:
-                    instructor.seeStudentProfile(options.retId("Enter the student id: "));
+                    new StudentOptions(connection).seeProfile(Options.retId("Enter the student id: "));
                     break;
                 case 3:
-                    instructor.gradeStudent(options.retId("Enter the student id : "));
+                    gradeStudent(Options.retId("Enter the student id : "),Options.retCode("enter code for course: "));
                     break;
                 case 4:
-                    instructor.removeStu(options.retId("Enter the student id: "));
-                    break;
+                   new StudentOptions(connection).un_enroll(Options.retId("Enter the student id: "),Options.retCode("enter the code for the course"));
+                   break;
                 case 5:
                     flag=false;
 
             }
         }
-        course.exportChanges();
+
+    }
+
+    public void gradeStudent(String s_id,String c_code) throws SQLException {
+
+        Student student = new StudentDao(connection).getStudent(s_id);
+        Course course=new CourseDao(connection).getCourseByCode(c_code);
+        if (student == null) {
+            System.out.println("student not found.");
+            return;
+        }
+        if (course == null) {
+            System.out.println("course not found.");
+            return;
+        }
+        System.out.println(student.getName() + "(ID-" + student.getId() + ")");
+        System.out.print("enter score for " + course.getName() + "(" + course.getCode() + ")");
+        double score = Double.parseDouble(scanner.nextLine());
+        marklistDao.gradeStudent(s_id,c_code,score );
+    }
+
+
+
+
+
+
+
+
+
+
+    public void listEnrolledStudents(String code) throws SQLException{
+           List<Student> students= marklistDao.getCourseEnrolledStudents(code);
+           if(students.isEmpty())
+               return;
+           for(Student student:students)
+               System.out.println("name:"+student.getName());
+
     }
 
 
