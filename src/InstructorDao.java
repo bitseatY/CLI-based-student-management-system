@@ -21,7 +21,7 @@ public class InstructorDao {
 
 
     public  void  add(String name,String i_id) throws SQLException{
-        String query="insert into instructor (i_id,name) values(?,?)";
+        String query="insert into instructors (id,name) values(?,?)";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ps.setString(1,i_id);
             ps.setString(2,name);
@@ -33,11 +33,11 @@ public class InstructorDao {
     }
     public List<User> getInstructors() throws SQLException{
         List<User> instructors=new ArrayList<>();
-        String query="select * from instructor";
+        String query="select * from instructors";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ResultSet rs=ps.executeQuery();
             while (rs.next())
-                instructors.add(new User(rs.getString("i_id"),rs.getString("name")));
+                instructors.add(new User(rs.getString("id"),rs.getString("name")));
 
         }
         return  instructors;
@@ -46,23 +46,23 @@ public class InstructorDao {
 
 
     public int getInsId(String id) throws SQLException {
-        String query="select id from instructor where i_id=?";
+        String query="select roll_num from instructor where id=?";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ps.setString(1,id);
             ResultSet rs=ps.executeQuery();
             if (rs.next())
-                return rs.getInt("id");
+                return rs.getInt("roll_num");
            return 0;
         }
 
     }
-    public  User getInsById(String i_id) throws SQLException {
-        String query="select * from instructor where i_id=?";
+    public  User getInsById(String id) throws SQLException {
+        String query="select * from instructors where id=?";
         try(PreparedStatement ps=connection.prepareStatement(query)){
-            ps.setString(1,i_id);
+            ps.setString(1,id);
             ResultSet rs=ps.executeQuery();
             if (rs.next())
-                return  new User(rs.getString("name"),rs.getString("i_id"));
+                return  new User(rs.getString("name"),rs.getString("id"));
             return null;
         }
 

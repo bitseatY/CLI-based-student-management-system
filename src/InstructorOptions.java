@@ -8,7 +8,6 @@ public class InstructorOptions  implements Options{
 
     public  InstructorOptions(Connection connection){
         this.connection=connection;
-
     }
 
 
@@ -84,7 +83,7 @@ public class InstructorOptions  implements Options{
         System.out.println(student.getName() + "(ID-" + student.getId() + ")");
         System.out.print("enter score for " + course.getTitle() + "(" + course.getCode() + ")");
         double score = Double.parseDouble(scanner.nextLine());
-       MarklistDao.getMarklistDao(connection).gradeStudent(s_id,c_code,score );
+       MarkListDao.getMarklistDao(connection).gradeStudent(s_id,c_code,score );
     }
 
 
@@ -97,7 +96,7 @@ public class InstructorOptions  implements Options{
 
 
     public void listEnrolledStudents(String code) throws SQLException{
-           List<User> students=MarklistDao.getMarklistDao(connection).getCourseEnrolledStudents(code);
+           List<User> students= MarkListDao.getMarklistDao(connection).getCourseEnrolledStudents(code);
            if(students.isEmpty())
                return;
            for(User student:students)

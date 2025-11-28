@@ -19,6 +19,9 @@ public class StudentOptions implements Options{
         }
         while(flag) {
             System.out.println("""
+                       
+                       
+                      
                         what would you like to do?
                         1.view available courses
                         2.view enrolled courses
@@ -42,8 +45,8 @@ public class StudentOptions implements Options{
                 continue;
             }
 
-            if(answer<1||answer>10){
-                System.out.println("options range from 1-8, try again.");
+            if(answer<1||answer>9){
+                System.out.println("options range from 1-9, try again.");
                 continue;
             }
             switch (answer) {
@@ -59,19 +62,19 @@ public class StudentOptions implements Options{
                 case 4:
                     seeAllGrades(student.getId());
                     break;
-                case 6:
+                case 5:
                     seeReportCard(student.getId());
                     break;
-                case 7:
+                case 6:
                    seeProfile(student.getId());
                     break;
-                case 8:
+                case 7:
                    updateProfile(student.getId());
                     break;
-                case 9:
+                case 8:
                     un_enroll(student.getId(),Options.retCode("Enter the course code you wish to withdraw : "));
                     break;
-                case 10:
+                case 9:
                     flag=false;
             }
         }
@@ -81,7 +84,7 @@ public class StudentOptions implements Options{
            CourseDao.getCourseDao(connection).viewCourses();
     }
     public void  listEnrolledCourses(String id) throws SQLException{
-            MarklistDao.getMarklistDao(connection).showStudentEnrolledCourses(id);
+            MarkListDao.getMarklistDao(connection).showStudentEnrolledCourses(id);
     }
     public void enroll(User student,String code) throws SQLException{
         Course course= CourseDao.getCourseDao(connection).getCourseByCode(code);
@@ -89,11 +92,11 @@ public class StudentOptions implements Options{
             System.out.println("course not found.");
             return;
         }
-       MarklistDao.getMarklistDao(connection).enrollStudentToCourse(student.getId(),code);
+       MarkListDao.getMarklistDao(connection).enrollStudentToCourse(student.getId(),code);
         System.out.println("you have successfully enrolled to "+course.getTitle()+"-"+course.getCode());
     }
     public  void  seeAllGrades(String st_id) throws SQLException{
-         MarklistDao.getMarklistDao(connection).seeAllGrades(st_id);
+         MarkListDao.getMarklistDao(connection).seeAllGrades(st_id);
     }
     public void seeReportCard(String st_id) throws  SQLException{
         if(CourseDao.getCourseDao(connection).getCourses().isEmpty()){
@@ -106,7 +109,7 @@ public class StudentOptions implements Options{
     }
 
     public double calGpa(String st_id) throws SQLException{
-        Map<Course,String> gradePerCourse=MarklistDao.getMarklistDao(connection).getGradePerCourse(st_id);
+        Map<Course,String> gradePerCourse= MarkListDao.getMarklistDao(connection).getGradePerCourse(st_id);
         double total=0.0;
         double totalChr=0;
         for(Course course:gradePerCourse.keySet()){
@@ -150,7 +153,7 @@ public class StudentOptions implements Options{
         seeProfile(st_id);
     }
     public void un_enroll(String st_id,String code) throws SQLException{
-        MarklistDao.getMarklistDao(connection).removeStudentFromCourse(st_id,code);
+        MarkListDao.getMarklistDao(connection).removeStudentFromCourse(st_id,code);
 
     }
 

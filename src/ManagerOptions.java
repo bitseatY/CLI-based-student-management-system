@@ -146,7 +146,7 @@ public class ManagerOptions implements Options{
         Course course=CourseDao.getCourseDao(connection).getCourseByCode(code);
         User student=StudentDao.getStudentDao(connection).getStudent(id);
         if(course!=null&student!=null) {
-            MarklistDao.getMarklistDao(connection).removeStudentFromCourse(id,code);
+            MarkListDao.getMarklistDao(connection).removeStudentFromCourse(id,code);
         }
 
         else{

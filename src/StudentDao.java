@@ -18,7 +18,7 @@ public class StudentDao {
     }
 
     public  void  addStudent(String id,String name) throws SQLException {
-        try(PreparedStatement ps= connection.prepareStatement("insert into student (s_id,name) values (?,?)")){
+        try(PreparedStatement ps= connection.prepareStatement("insert into students (id,name) values (?,?)")){
             ps.setString(1,id);
             ps.setString(2,name);
            ps.executeUpdate();
@@ -26,11 +26,10 @@ public class StudentDao {
     }
     public List<User> getStudents() throws SQLException{
         List<User> students=new ArrayList<>();
-        try(PreparedStatement ps= connection.prepareStatement("select * from student")){
+        try(PreparedStatement ps= connection.prepareStatement("select * from students")){
             ResultSet rs=  ps.executeQuery();
-
             while (rs.next()) {
-                students.add(new User(rs.getString("s_id"), rs.getString("name")));
+                students.add(new User(rs.getString("id"), rs.getString("name")));
 
             }
 
@@ -41,7 +40,7 @@ public class StudentDao {
     public User getStudent(String id) throws SQLException{
 
         User student=null;
-        try(PreparedStatement ps= connection.prepareStatement("select * from student where s_id=?")){
+        try(PreparedStatement ps= connection.prepareStatement("select * from students where id=?")){
             ps.setString(1,id);
             ResultSet rs=  ps.executeQuery();
              if (rs.next()) {
@@ -53,18 +52,19 @@ public class StudentDao {
     }
 
 
-    public  int getStudentId(String id) throws SQLException{
-       String query="select id from student  where s_id=?";
+    public  int getStudentRollNum(String id) throws SQLException{
+       String query="select * from students  where id=?";
        try(PreparedStatement ps= connection.prepareStatement(query)){
            ps.setString(1, id);
            ResultSet rs=ps.executeQuery();
            if(rs.next())
-               return rs.getInt("id");
+               return rs.getInt("roll_num");
            return 0;
        }
     }
-    public  User getStudentById(int id) throws SQLException{
-        String query="select * from student  where id=?";
+
+    public  User getStudentByRollNum(int id) throws SQLException{
+        String query="select * from students  where id=?";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setInt(1, id);
             ResultSet rs=ps.executeQuery();
@@ -79,11 +79,11 @@ public class StudentDao {
 
 
 
-    public  void updateStudentProfile(String st_id,String name) throws SQLException{
-        String query="update student set name=?  where id=? ";
+    public  void updateStudentProfile(String id,String name) throws SQLException{
+        String query="update students set name=?  where id=? ";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setString(1, name);
-            ps.setString(2, st_id);
+            ps.setString(2, id);
            ps.executeUpdate();
 
         }

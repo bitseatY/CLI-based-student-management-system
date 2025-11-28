@@ -20,7 +20,7 @@ public class CourseDao {
 
 
     public  void  addCourse(Course course) throws SQLException {
-        String query="insert into course (code,title,credit_hr) values (?,?,?)";
+        String query="insert into courses (code,title,credit_hr) values (?,?,?)";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setString(1, course.getCode());
             ps.setString(2, course.getTitle());
@@ -29,7 +29,7 @@ public class CourseDao {
         }
     }
     public Course getCourseByCode(String code) throws SQLException{
-        String query="select * from course where code=?";
+        String query="select * from courses where code=?";
         try(PreparedStatement ps= connection.prepareStatement(query)) {
             ps.setString(1, code);
             ResultSet rs = ps.executeQuery();
@@ -39,10 +39,10 @@ public class CourseDao {
                 return null;
         }
     }
-    public Course getCourseById(int id) throws SQLException{
-        String query="select * from course where id=?";
+    public Course getCourseByRollNum(int roll_num) throws SQLException{
+        String query="select * from courses where roll_num=?";
         try(PreparedStatement ps= connection.prepareStatement(query)) {
-            ps.setInt(1, id);
+            ps.setInt(1, roll_num);
             ResultSet rs = ps.executeQuery();
             if (rs.next())
                 return new Course(rs.getString("title"), rs.getString("code"), rs.getInt("credit_hr"));
@@ -54,13 +54,13 @@ public class CourseDao {
 
 
 
-    public  int getCourseId(String code) throws SQLException{
-        String query="select id from course where code=?";
+    public  int getCourseRollNum(String code) throws SQLException{
+        String query="select *  from courses where code=?";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setString(1, code);
             ResultSet rs=ps.executeQuery();
             if(rs.next())
-                return rs.getInt("id");
+                return rs.getInt("roll_num");
             return 0;
         }
 
@@ -69,7 +69,7 @@ public class CourseDao {
 
     public List<Course> getCourses() throws SQLException{
         List<Course> courses=new ArrayList<>();
-        String query="select * from course";
+        String query="select * from courses";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ResultSet rs= ps.executeQuery();
             while (rs.next())
@@ -79,24 +79,25 @@ public class CourseDao {
         }
     }
     public void viewCourses() throws SQLException{
-        String query="select * from course ";
+        String query="select * from courses ";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ResultSet rs=ps.executeQuery();
-             if(!rs.next()) {
-                 System.out.println("no courses available right now.");
-                 return;
-             }
-             while(rs.next())
-                 System.out.print(rs.getString("title")+"("+rs.getString("code")+")...."+
-                         rs.getInt("credit_hr")+
+             boolean flag=false;
+             while(rs.next()) {
+                 System.out.print(rs.getString("title") + "(" + rs.getString("code") + ")...." +
+                         rs.getInt("credit_hr") +
                          " HR\n");
+                 flag=true;
+             }
+             if(flag==false)
+                 System.out.println("no courses found");
              System.out.println();
         }
     }
 
 
     public  void  remove(Course course) throws SQLException{
-        String query="delete from course where code=?";
+        String query="delete from courses where code=?";
         try (PreparedStatement ps= connection.prepareStatement(query)){
             ps.setString(1, course.getCode());
             ps.executeUpdate();
