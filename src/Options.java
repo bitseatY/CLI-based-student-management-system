@@ -1,6 +1,11 @@
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public interface Options {
+
+
+
+
     Scanner scanner=new Scanner(System.in);
     static String  retName(String message){
         System.out.print(message);
@@ -14,7 +19,7 @@ public interface Options {
         System.out.print(message);
         return scanner.nextLine();
     }
-    void menu();
+    void menu() throws SQLException;
 
 
 }

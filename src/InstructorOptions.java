@@ -13,10 +13,10 @@ public class InstructorOptions {
     private final Scanner scanner=new Scanner(System.in);
     public  InstructorOptions(Connection connection){
         this.connection=connection;
-        studentDao=new StudentDao(connection);
-        marklistDao=new MarklistDao(connection);
-        courseDao =new CourseDao(connection);
-        instructorDao=new InstructorDao(connection);
+        studentDao=StudentDao.getStudentDao(connection);
+        marklistDao=MarklistDao.getMarklistDao(connection);
+        courseDao =CourseDao.getCourseDao(connection);
+        instructorDao=InstructorDao.getInstructorDao(connection);
     }
 
 
@@ -81,8 +81,8 @@ public class InstructorOptions {
 
     public void gradeStudent(String s_id,String c_code) throws SQLException {
 
-        Student student = new StudentDao(connection).getStudent(s_id);
-        Course course=new CourseDao(connection).getCourseByCode(c_code);
+        Student student = StudentDao.getStudentDao(connection).getStudent(s_id);
+        Course course=CourseDao.getCourseDao(connection).getCourseByCode(c_code);
         if (student == null) {
             System.out.println("student not found.");
             return;
@@ -92,7 +92,7 @@ public class InstructorOptions {
             return;
         }
         System.out.println(student.getName() + "(ID-" + student.getId() + ")");
-        System.out.print("enter score for " + course.getName() + "(" + course.getCode() + ")");
+        System.out.print("enter score for " + course.getTitle() + "(" + course.getCode() + ")");
         double score = Double.parseDouble(scanner.nextLine());
         marklistDao.gradeStudent(s_id,c_code,score );
     }

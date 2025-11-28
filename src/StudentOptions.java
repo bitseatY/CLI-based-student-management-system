@@ -12,13 +12,14 @@ public class StudentOptions {
     private final Scanner scanner=new Scanner(System.in);
     public  StudentOptions(Connection connection){
         this.connection=connection;
-        studentDao=new StudentDao(connection);
-        marklistDao=new MarklistDao(connection);
-        courseDao =new CourseDao(connection);
+        studentDao=StudentDao.getStudentDao(connection);
+        marklistDao=MarklistDao.getMarklistDao(connection);
+        courseDao =CourseDao.getCourseDao(connection);
     }
     public void menu() throws SQLException {
         boolean flag=true;
         Student student=studentDao.getStudent(Options.retId("Enter your ID: "));
+
         if(student==null){
             System.out.println("ID not found try again.");
             return;
@@ -96,7 +97,7 @@ public class StudentOptions {
             return;
         }
         marklistDao.enrollStudentToCourse(student.getId(),code);
-        System.out.println("you have successfully enrolled to "+course.getName()+"-"+course.getCode());
+        System.out.println("you have successfully enrolled to "+course.getTitle()+"-"+course.getCode());
     }
     public  void  seeAllGrades(String st_id) throws SQLException{
           marklistDao.seeAllGrades(st_id);

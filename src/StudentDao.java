@@ -7,8 +7,14 @@ import java.util.List;
 
 public class StudentDao {
     private Connection connection;
-    public StudentDao(Connection connection){
+    private static  StudentDao studentDao;
+    private StudentDao(Connection connection){
         this.connection=connection;
+    }
+    public static   StudentDao getStudentDao(Connection connection){
+         if(studentDao==null)
+            studentDao=new StudentDao(connection);
+         return  studentDao;
     }
 
     public  void  addStudent(String id,String name) throws SQLException {
@@ -22,25 +28,31 @@ public class StudentDao {
         List<Student> students=new ArrayList<>();
         try(PreparedStatement ps= connection.prepareStatement("select * from student")){
             ResultSet rs=  ps.executeQuery();
-            while (rs.next())
-                students.add(new Student(rs.getString("s_id"),rs.getString("name")));
+
+            while (rs.next()) {
+                students.add(new Student(rs.getString("s_id"), rs.getString("name")));
+
+            }
 
         }
         return  students;
     }
 
     public Student getStudent(String id) throws SQLException{
-        List<Student> students=getStudents();
+
         Student student=null;
-        for(Student s:students) {
-            if (s.getId().equals(id)) {
-                student=s;
-                break;
+        try(PreparedStatement ps= connection.prepareStatement("select * from student where s_id=?")){
+            ps.setString(1,id);
+            ResultSet rs=  ps.executeQuery();
+             if (rs.next()) {
+                  student=new Student(rs.getString("name"),id);
             }
 
         }
-        return  student;
+        return student;
     }
+
+
     public  int getStudentId(String id) throws SQLException{
        String query="select id from student  where s_id=?";
        try(PreparedStatement ps= connection.prepareStatement(query)){

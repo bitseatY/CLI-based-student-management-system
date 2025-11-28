@@ -8,9 +8,18 @@ import java.util.ResourceBundle;
 
 public class InstructorDao {
     private Connection connection;
-    public InstructorDao(Connection connection){
+    private static InstructorDao instructorDao;
+    private  InstructorDao(Connection connection){
         this.connection=connection;
     }
+    public static  InstructorDao getInstructorDao(Connection connection){
+        if(instructorDao==null)
+            instructorDao=new InstructorDao(connection);
+        return instructorDao;
+
+    }
+
+
     public  void  add(Instructor instructor) throws SQLException{
         String query="insert into instructor (i_id,name) values(?,?)";
         try(PreparedStatement ps=connection.prepareStatement(query)){

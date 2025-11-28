@@ -3,25 +3,24 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
-public class ManagerOptions{
+public class ManagerOptions implements Options{
     private Connection connection;
     private  StudentDao studentDao;
     private CourseDao courseDao;
     private MarklistDao marklistDao;
     private  InstructorDao instructorDao;
-    private transient final Scanner scanner=new Scanner(System.in);
     public ManagerOptions(Connection connection){
         this.connection=connection;
-        studentDao=new StudentDao(connection);
-        marklistDao=new MarklistDao(connection);
-        courseDao =new CourseDao(connection);
-        instructorDao=new InstructorDao(connection);
+        studentDao=StudentDao.getStudentDao(connection);
+        marklistDao=MarklistDao.getMarklistDao(connection);
+        courseDao =CourseDao.getCourseDao(connection);
+        instructorDao=InstructorDao.getInstructorDao(connection);
 
     }
 
 
     public void menu() throws SQLException{
-        ManagerDao managerDao=new ManagerDao(connection);
+        ManagerDao managerDao=ManagerDao.getManagerDao(connection);
         String id=Options.retId("Enter your id : ");
         Manager manager=managerDao.getManagerById(id);
         if (manager==null)
@@ -102,7 +101,7 @@ public class ManagerOptions{
         Course course=new Course(code,title,cr_hr);
         courseDao.addCourse(course);
 
-        System.out.println(course.getName()+" -("+course.getCode()+") is successfully added to available courses.");
+        System.out.println(course.getTitle()+" -("+course.getCode()+") is successfully added to available courses.");
 
     }
     public void removeCourse(String code) throws SQLException{
@@ -113,7 +112,7 @@ public class ManagerOptions{
             return;
         }
         courseDao.remove(course);
-        System.out.println(course.getName()+"("+course.getCode()+") is successfully removed.");
+        System.out.println(course.getTitle()+"("+course.getCode()+") is successfully removed.");
 
     }
     public void assignInstructor(String code) throws SQLException{
@@ -134,14 +133,14 @@ public class ManagerOptions{
             if(i.getId().equals(id)){
                 instructor=i;
                 course.setInstructor(instructor.getId());
-                System.out.println("Ir."+name+" is assigned to the course "+course.getName()+" ("+course.getCode()+")");
+                System.out.println("Ir."+name+" is assigned to the course "+course.getTitle()+" ("+course.getCode()+")");
                 return ;
             }
         }
         instructor=new Instructor(name,id);
         instructorDao.add(instructor);
         course.setInstructor(instructor.getId());
-        System.out.println("Ir."+name+" is assigned to the course "+course.getName()+" ("+course.getCode()+")");
+        System.out.println("Ir."+name+" is assigned to the course "+course.getTitle()+" ("+course.getCode()+")");
     }
 
     public void seeStuProfile(String id) throws SQLException{

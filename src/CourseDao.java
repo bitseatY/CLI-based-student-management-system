@@ -7,15 +7,23 @@ import java.util.List;
 
 public class CourseDao {
     private Connection connection;
-    public CourseDao(Connection connection){
+    private static CourseDao courseDao;
+    private CourseDao(Connection connection){
         this.connection=connection;
     }
+    public static CourseDao getCourseDao(Connection connection){
+         if(courseDao==null)
+             courseDao=new CourseDao(connection);
+         return courseDao;
+    }
+
+
 
     public  void  addCourse(Course course) throws SQLException {
         String query="insert into course (code,title,credit_hr) values (?,?,?)";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setString(1, course.getCode());
-            ps.setString(2, course.getName());
+            ps.setString(2, course.getTitle());
             ps.setInt(3,course.getCreditHr());
             ps.executeUpdate();
         }
