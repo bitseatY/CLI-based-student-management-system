@@ -20,24 +20,24 @@ public class InstructorDao {
     }
 
 
-    public  void  add(Instructor instructor) throws SQLException{
+    public  void  add(String name,String i_id) throws SQLException{
         String query="insert into instructor (i_id,name) values(?,?)";
         try(PreparedStatement ps=connection.prepareStatement(query)){
-            ps.setString(1,instructor.getId());
-            ps.setString(2,instructor.getName());
+            ps.setString(1,i_id);
+            ps.setString(2,name);
             ps.executeUpdate();
 
         }
 
 
     }
-    public List<Instructor> getInstructors() throws SQLException{
-        List<Instructor> instructors=new ArrayList<>();
+    public List<User> getInstructors() throws SQLException{
+        List<User> instructors=new ArrayList<>();
         String query="select * from instructor";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ResultSet rs=ps.executeQuery();
             while (rs.next())
-                instructors.add(new Instructor(rs.getString("i_id"),rs.getString("name")));
+                instructors.add(new User(rs.getString("i_id"),rs.getString("name")));
 
         }
         return  instructors;
@@ -56,13 +56,13 @@ public class InstructorDao {
         }
 
     }
-    public  Instructor getInsById(String i_id) throws SQLException {
+    public  User getInsById(String i_id) throws SQLException {
         String query="select * from instructor where i_id=?";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ps.setString(1,i_id);
             ResultSet rs=ps.executeQuery();
             if (rs.next())
-                return  new Instructor(rs.getString("name"),rs.getString("i_id"));
+                return  new User(rs.getString("name"),rs.getString("i_id"));
             return null;
         }
 

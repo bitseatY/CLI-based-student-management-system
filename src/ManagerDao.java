@@ -17,13 +17,13 @@ public class ManagerDao {
     }
 
 
-    public Manager getManagerById(String m_id) throws SQLException {
+    public User getManagerById(String m_id) throws SQLException {
         String query="select * from manager where m_id=?";
         try(PreparedStatement ps= connection.prepareStatement(query)) {
             ps.setString(1, m_id);
             ResultSet rs = ps.executeQuery();
             if (rs.next())
-                return new Manager(rs.getString("name"), m_id);
+                return new User(rs.getString("name"), m_id);
             else
                 return null;
         }

@@ -24,13 +24,13 @@ public class StudentDao {
            ps.executeUpdate();
         }
     }
-    public List<Student> getStudents() throws SQLException{
-        List<Student> students=new ArrayList<>();
+    public List<User> getStudents() throws SQLException{
+        List<User> students=new ArrayList<>();
         try(PreparedStatement ps= connection.prepareStatement("select * from student")){
             ResultSet rs=  ps.executeQuery();
 
             while (rs.next()) {
-                students.add(new Student(rs.getString("s_id"), rs.getString("name")));
+                students.add(new User(rs.getString("s_id"), rs.getString("name")));
 
             }
 
@@ -38,14 +38,14 @@ public class StudentDao {
         return  students;
     }
 
-    public Student getStudent(String id) throws SQLException{
+    public User getStudent(String id) throws SQLException{
 
-        Student student=null;
+        User student=null;
         try(PreparedStatement ps= connection.prepareStatement("select * from student where s_id=?")){
             ps.setString(1,id);
             ResultSet rs=  ps.executeQuery();
              if (rs.next()) {
-                  student=new Student(rs.getString("name"),id);
+                  student=new User(rs.getString("name"),id);
             }
 
         }
@@ -63,13 +63,13 @@ public class StudentDao {
            return 0;
        }
     }
-    public  Student getStudentById(int id) throws SQLException{
+    public  User getStudentById(int id) throws SQLException{
         String query="select * from student  where id=?";
         try(PreparedStatement ps= connection.prepareStatement(query)){
             ps.setInt(1, id);
             ResultSet rs=ps.executeQuery();
             if(rs.next())
-                return  new Student(rs.getString("name"),rs.getString("s_id"));
+                return  new User(rs.getString("name"),rs.getString("s_id"));
             return null;
         }
     }

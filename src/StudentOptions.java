@@ -1,24 +1,17 @@
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Scanner;
 
-public class StudentOptions {
+
+public class StudentOptions implements Options{
     private final Connection connection;
-    private final   StudentDao studentDao;
-    private final  MarklistDao marklistDao;
-    private  final  CourseDao courseDao;
-
-    private final Scanner scanner=new Scanner(System.in);
     public  StudentOptions(Connection connection){
         this.connection=connection;
-        studentDao=StudentDao.getStudentDao(connection);
-        marklistDao=MarklistDao.getMarklistDao(connection);
-        courseDao =CourseDao.getCourseDao(connection);
+
     }
     public void menu() throws SQLException {
         boolean flag=true;
-        Student student=studentDao.getStudent(Options.retId("Enter your ID: "));
+        User student=StudentDao.getStudentDao(connection).getStudent(Options.retId("Enter your ID: "));
 
         if(student==null){
             System.out.println("ID not found try again.");
@@ -85,25 +78,25 @@ public class StudentOptions {
 
     }
     public void viewAvailableCourses() throws SQLException {
-           courseDao.viewCourses();
+           CourseDao.getCourseDao(connection).viewCourses();
     }
     public void  listEnrolledCourses(String id) throws SQLException{
-            marklistDao.showStudentEnrolledCourses(id);
+            MarklistDao.getMarklistDao(connection).showStudentEnrolledCourses(id);
     }
-    public void enroll(Student student,String code) throws SQLException{
-        Course course= courseDao.getCourseByCode(code);
+    public void enroll(User student,String code) throws SQLException{
+        Course course= CourseDao.getCourseDao(connection).getCourseByCode(code);
         if(course==null){
             System.out.println("course not found.");
             return;
         }
-        marklistDao.enrollStudentToCourse(student.getId(),code);
+       MarklistDao.getMarklistDao(connection).enrollStudentToCourse(student.getId(),code);
         System.out.println("you have successfully enrolled to "+course.getTitle()+"-"+course.getCode());
     }
     public  void  seeAllGrades(String st_id) throws SQLException{
-          marklistDao.seeAllGrades(st_id);
+         MarklistDao.getMarklistDao(connection).seeAllGrades(st_id);
     }
     public void seeReportCard(String st_id) throws  SQLException{
-        if(courseDao.getCourses().isEmpty()){
+        if(CourseDao.getCourseDao(connection).getCourses().isEmpty()){
             System.out.println("you haven't enrolled to any course yet.");
             return;
         }
@@ -113,7 +106,7 @@ public class StudentOptions {
     }
 
     public double calGpa(String st_id) throws SQLException{
-        Map<Course,String> gradePerCourse=marklistDao.getGradePerCourse(st_id);
+        Map<Course,String> gradePerCourse=MarklistDao.getMarklistDao(connection).getGradePerCourse(st_id);
         double total=0.0;
         double totalChr=0;
         for(Course course:gradePerCourse.keySet()){
@@ -138,7 +131,7 @@ public class StudentOptions {
         return total/totalChr;
     }
     public void seeProfile(String st_id) throws SQLException{
-        Student student=studentDao.getStudent(st_id);
+        User student=StudentDao.getStudentDao(connection).getStudent(st_id);
         if(student==null)
             return;
         System.out.println("******Student profile************");
@@ -146,18 +139,18 @@ public class StudentOptions {
         listEnrolledCourses(st_id);
     }
     public void updateProfile(String st_id) throws SQLException{
-        Student student=studentDao.getStudent(st_id);
+        User student=StudentDao.getStudentDao(connection).getStudent(st_id);
         if(student==null)
             return;
         System.out.print("enter full name: ");
         String newName=scanner.nextLine();
-        studentDao.updateStudentProfile(st_id,newName);
+        StudentDao.getStudentDao(connection).updateStudentProfile(st_id,newName);
 
         System.out.println("you have successfully updated your profile to:\n ");
         seeProfile(st_id);
     }
     public void un_enroll(String st_id,String code) throws SQLException{
-        marklistDao.removeStudentFromCourse(st_id,code);
+        MarklistDao.getMarklistDao(connection).removeStudentFromCourse(st_id,code);
 
     }
 

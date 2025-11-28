@@ -49,15 +49,15 @@ public class MarklistDao {
             if(courses.isEmpty())
                 return;
             System.out.println("you have been enrolled to the following courses.\n");
-            CourseDao courseDao=CourseDao.getCourseDao(connection);
+
             for(Course course:courses) {
                 System.out.printf("%s(%s) -%dHR ",
                         course.getTitle(), course.getCode(), course.getCreditHr());
             }
     }
 
-    public List<Student> getCourseEnrolledStudents(String code) throws SQLException {
-        List<Student> students =new ArrayList<>();
+    public List<User> getCourseEnrolledStudents(String code) throws SQLException {
+        List<User> students =new ArrayList<>();
         String query="select s_id from marklist where c_id=?";
         try (PreparedStatement ps=connection.prepareStatement(query)) {
             int c_id = CourseDao.getCourseDao(connection).getCourseId(code);
@@ -68,9 +68,8 @@ public class MarklistDao {
             if (!rs.next()) {
                 System.out.println("students not found,");
             }
-            CourseDao courseDao=CourseDao.getCourseDao(connection);
             while (rs.next()) {
-                Student student=StudentDao.getStudentDao(connection).getStudentById(rs.getInt("s_id"));
+                User student=StudentDao.getStudentDao(connection).getStudentById(rs.getInt("s_id"));
                 students.add(student);
             }
             return  students;

@@ -5,9 +5,9 @@ import java.sql.SQLException;
 public class DBConnection {
 
     private Connection connection;
-    private  String url;
-    private  String password;
-    private  String username;
+    private final   String url;
+    private final   String password;
+    private final   String username;
     public    DBConnection(String url,String username,String password){
         this.url=url;
         this.password=password;

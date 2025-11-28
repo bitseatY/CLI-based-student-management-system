@@ -7,6 +7,7 @@ public class LogInPage {
     public static void menu()  throws SQLException {
 
         Connection connection = new DBConnection("jdbc:mysql://localhost:3306/portal", "root", "b:tse@t1996").getConnection();
+
         Scanner scanner = new Scanner(System.in);
 
         boolean flag = true;
@@ -41,7 +42,7 @@ public class LogInPage {
                     instructorOptions.menu();
                     break;
                 case 3:
-                    ManagerOptions managerOptions = new ManagerOptions(connection);
+                    Options managerOptions = new ManagerOptions(connection);
                     managerOptions.menu();
                     break;
                 case 4:

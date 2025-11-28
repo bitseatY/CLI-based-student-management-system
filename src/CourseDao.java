@@ -102,7 +102,7 @@ public class CourseDao {
             ps.executeUpdate();
         }
     }
-   public void  assignInstructor(Course course,Instructor instructor) throws SQLException {
+   public void  assignInstructor(Course course,User instructor) throws SQLException {
        String query = "update course set ins_id=? where code=? ";
        try (PreparedStatement ps = connection.prepareStatement(query)) {
            ps.setString(1, instructor.getId());
