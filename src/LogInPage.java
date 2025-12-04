@@ -6,9 +6,17 @@ public class LogInPage {
 
     public static void menu()  throws SQLException {
 
-        Connection connection = new DBConnection("jdbc:mysql://localhost:3306/portal", "root", "b:tse@t1996").getConnection();
+       
 
         Scanner scanner = new Scanner(System.in);
+       System.out.println("enter url for the database;");
+        String url=scanner.nextLine();
+         System.out.println("enter user name ;");
+        String username=scanner.nextLine();
+         System.out.println("enter password for the database ;");
+        String password=scanner.nextLine();
+        Connection connection = new DBConnection(url, username, password ).getConnection();
+
 
         boolean flag = true;
         while (flag) {
